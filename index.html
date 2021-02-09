@@ -28,7 +28,7 @@
     }
 
     function onPlayerReady(event) {
-    event.target.playVideo();
+      event.target.playVideo();
     } 
     
     let phase = 1;
@@ -39,42 +39,46 @@
           setTimeout(() => {
             askForName()
           }, 6000)
-        } elseif (event.data != YT.PlayerState.PLAYING && phase === 2) {
-
+        } else if (event.data == YT.PlayerState.PLAYING && phase === 2) {
+          setTimeout(() => {
+            speak(username);
+          }, 100)
         }
       }
 
+    function messageUser(question, btnName, valueType) {
+      messageBox.innerHTML = `<div>
+          ${question} 
+          <input type="textbox" id="${valueType}"/>
+          <button id="${btnName}">Submit</button>
+        </div>`
+    }
+
+    function clearMessage() {
+      messageBox.innerHTML = ''
+    }
+
     function askForName() {
         player.pauseVideo()
-
-        phase = 2
+        messageUser(`what's your name?`, 'submit-username', 'user-value')
+        const submit = document.getElementById('submit-username')
+        submit.addEventListener('click', () => {
+          saveUser()
+          clearMessage()
+          phase = 2
+          player.playVideo()
+        })
     }
-      // function stopVideo() {
-      //   player.stopVideo();
-      // }
 
-    // const playButton = document.querySelector('.ytp-play-button')
-    // const largePlayButton = document.querySelector('.ytp-large-play-button')
+    function saveUser(fromElement) {
+        username = document.getElementById('user-value').value
+    }
     
     function speak(words) {
       const msg = new SpeechSynthesisUtterance()
       msg.text = words
       window.speechSynthesis.speak(msg)
     }
-
-  const monitorVideo = setInterval(function () {
-      const video = document.activeElement;
-      const player = document.getElementById('video_id')
-      if (video && video.tagName == 'IFRAME') {
-          console.log(video)
-          setTimeout(()=> {
-            player.stopVideo()
-          }, 1000)
-        clearInterval(monitorVideo);
-      }
-    }, 100);
-
-
     // no video? are you connected to the internet?
 
   </script>
