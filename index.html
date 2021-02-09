@@ -1,19 +1,82 @@
 <!DOCTYPE html>
 <html>
   <body>
-    <button id="test-button">test</button>
+    <div id='player'></div>
+    <div id='message-box'></div>
   </body>
   <script>
+    const messageBox = document.getElementById('message-box')
+
+    const ytAPI = document.createElement('script')
+    ytAPI.src = "https://www.youtube.com/iframe_api"
+
+    var firstScriptTag = document.getElementsByTagName('script')[0]
+    firstScriptTag.parentNode.insertBefore(ytAPI, firstScriptTag)
+
+    let player;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: 'v3nb8Tmk6jM',
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      })
+    }
+
+    function onPlayerReady(event) {
+    event.target.playVideo();
+    } 
+    
+    let phase = 1;
+    let username;
+
+    function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && phase === 1) {
+          setTimeout(() => {
+            askForName()
+          }, 6000)
+        } elseif (event.data != YT.PlayerState.PLAYING && phase === 2) {
+
+        }
+      }
+
+    function askForName() {
+        player.pauseVideo()
+
+        phase = 2
+    }
+      // function stopVideo() {
+      //   player.stopVideo();
+      // }
+
+    // const playButton = document.querySelector('.ytp-play-button')
+    // const largePlayButton = document.querySelector('.ytp-large-play-button')
+    
     function speak(words) {
       const msg = new SpeechSynthesisUtterance()
       msg.text = words
       window.speechSynthesis.speak(msg)
     }
 
-    const testBtn = document.getElementById('test-button')
-    testBtn.addEventListener('click', (event) => {
-      speak('tested and working')
-    })
+  const monitorVideo = setInterval(function () {
+      const video = document.activeElement;
+      const player = document.getElementById('video_id')
+      if (video && video.tagName == 'IFRAME') {
+          console.log(video)
+          setTimeout(()=> {
+            player.stopVideo()
+          }, 1000)
+        clearInterval(monitorVideo);
+      }
+    }, 100);
+
+
+    // no video? are you connected to the internet?
 
   </script>
 </html>
+
