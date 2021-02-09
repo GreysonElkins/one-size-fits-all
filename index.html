@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <button id="test-button">test</button>
+  </body>
+  <script>
+    function speak(words) {
+      const msg = new SpeechSynthesisUtterance()
+      msg.text = words
+      window.speechSynthesis.speak(msg)
+    }
+
+    const testBtn = document.getElementById('test-button')
+    testBtn.addEventListener('click', (event) => {
+      speak('tested and working')
+    })
+
+  </script>
+</html>
