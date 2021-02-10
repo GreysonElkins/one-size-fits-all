@@ -115,29 +115,24 @@
       <form id='message-box'></form>
     </div>
     <div class="captions"></div>
-    <div class="controls">
-      <span style="opacity:.6; font-size: 1.5em;">
-        I'm using closed captions: 
-      </span>
-      <label class="switch">
-        <input type="checkbox" id="cc-switch">
-        <span class="slider round"></span>
-      </label>
-    </div>
+    <div class="controls"></div>
+    <div class="loading" style="text-align: center; width: 80%; margin: auto;"></div>
 
   </body>
   <script>
     const messageBox = document.getElementById('message-box')
-    const closedCaptionSwitch = document.getElementById('cc-switch')
+    const loading = document.querySelector('.loading')
     let closedCaptionsOn = false;
 
-    closedCaptionSwitch.addEventListener('click', () => {
-      if (!closedCaptionsOn) {
-        closedCaptionsOn = true
-      } else {
-        closedCaptionsOn = false
-      }
-    })
+    setTimeout(() => {
+      loading.innerHTML = `
+        This is taking a while to load... how's your internet connection? 
+        <br /> You're gonna want to <b>get on the internet</b> and <b>hit refresh</b>. <br/> It's much more fun that way.
+        <br /><br />If you <i>are</i> on the internet, I'm blaming youtube...
+        but email me at at <a href = "mailto:greysonelkins@gmail.com">greysonelkins@gmail.com</a> if you're still having problems viewing this! <br/>
+        I'll do my best to fix it or get you an alternate.
+        `
+    }, 3000)
 
     const ytAPI = document.createElement('script')
     ytAPI.src = "https://www.youtube.com/iframe_api"
@@ -160,8 +155,35 @@
     }
 
     function onPlayerReady(event) {
-      event.target.playVideo();
+      addCaptionControl()
+      hideLoading()
+      event.target.playVideo()
     } 
+
+    function addCaptionControl () {
+      const controls = document.querySelector('.controls')
+      controls.innerHTML = `
+        <span style="opacity:.6; font-size: 1.5em;">
+          I'm using closed captions: 
+        </span>
+        <label class="switch">
+          <input type="checkbox" id="cc-switch">
+          <span class="slider round"></span>
+        </label>`
+
+      const closedCaptionSwitch = document.getElementById('cc-switch')
+      closedCaptionSwitch.addEventListener('click', () => {
+        if (!closedCaptionsOn) {
+          closedCaptionsOn = true
+        } else {
+          closedCaptionsOn = false
+        }
+    })
+    }
+
+    function hideLoading() {
+      loading.style.opacity = 0;
+    }
     
     let phase = 1;
     const saveData = {
