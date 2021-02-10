@@ -1,11 +1,143 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Greyson's Extraordinary Cover Letter</title>
+    <link rel="shortcut icon" href="https://www.flaticon.com/svg/vstatic/svg/2983/2983706.svg?token=exp=1612922682~hmac=5ed7cfbb997291a74189f97cedbda1c0" />
+    <style>
+      .player-container {
+       display: flex;
+       justify-content: center;
+       align-content: center;
+       height: 100%;
+       width: 100%;
+       margin-bottom: 30px;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .captions, #message-box {
+        display: flex;
+        justify-content: center;
+      }
+
+      .captions {
+        height: 1.5em;
+        width: 100;
+        color: white;
+        
+      }
+
+      #message-box {
+        position: fixed;
+        margin: 0 auto;
+        flex-direction: column;
+        align-items: center;
+        z-index: 1000;
+        background:white;
+        opacity: 0;
+        width: 640px;
+        height: 390px;
+      }
+
+      #message-box > * {
+        font-size: 1.5em;
+        margin: 2px;
+      }
+
+      .switch {
+          transform: rotate(-90deg);
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 34px;
+        }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+      }
+
+      input:checked + .slider {
+        background-color: #2196F3;
+      }
+
+      input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+      }
+
+      input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+      }
+
+      .slider.round {
+        border-radius: 34px;
+      }
+
+      .slider.round:before {
+        border-radius: 50%;
+      }
+    </style>
+  </head>
   <body>
-    <div id='player'></div>
-    <div id='message-box'></div>
+    <div class="player-container">
+      <div id='player'></div>
+      <form id='message-box'></form>
+    </div>
+    <div class="captions"></div>
+    <div class="controls">
+      <span style="opacity:.6; font-size: 1.5em;">
+        I'm using closed captions: 
+      </span>
+      <label class="switch">
+        <input type="checkbox" id="cc-switch">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
   </body>
   <script>
     const messageBox = document.getElementById('message-box')
+    const closedCaptionSwitch = document.getElementById('cc-switch')
+    let closedCaptionsOn = false;
+
+    closedCaptionSwitch.addEventListener('click', () => {
+      if (!closedCaptionsOn) {
+        closedCaptionsOn = true
+      } else {
+        closedCaptionsOn = false
+      }
+    })
 
     const ytAPI = document.createElement('script')
     ytAPI.src = "https://www.youtube.com/iframe_api"
@@ -32,55 +164,105 @@
     } 
     
     let phase = 1;
-    let username;
+    const saveData = {
+      username: '',
+      company: ''
+    }
 
     function onPlayerStateChange(event) {
-        if (event.data == YT.PlayerState.PLAYING && phase === 1) {
+      const playerPlaying = event.data == YT.PlayerState.PLAYING
+        if (playerPlaying && phase === 1) {
           setTimeout(() => {
-            askForName()
+            askForInput("What's your name?", "username")
+          }, 1000)
+        } else if (playerPlaying && phase === 2) {
+          setTimeout(() => {
+            speak(saveData.username);
+          }, 3000)
+          setTimeout(() => {
+            askForInput('Remind me, what company are you with again?', "company")
           }, 6000)
-        } else if (event.data == YT.PlayerState.PLAYING && phase === 2) {
+        } else if (playerPlaying && phase === 3) {
           setTimeout(() => {
-            speak(username);
-          }, 100)
+            speak(saveData.company);
+          }, 4000)
         }
       }
 
-    function messageUser(question, btnName, valueType) {
-      messageBox.innerHTML = `<div>
-          ${question} 
-          <input type="textbox" id="${valueType}"/>
-          <button id="${btnName}">Submit</button>
-        </div>`
+    function messageUser(question, btnName) {
+      messageBox.innerHTML = `
+          <label for="input">${question}</label>
+          <input type="textbox" id="input-value" aria-required="true"/>
+          <input type="submit" id="submit-input" />
+          <span id="err" style="color:red; font-size:1em;"></span>
+          `
     }
 
     function clearMessage() {
       messageBox.innerHTML = ''
     }
 
-    function askForName() {
-        player.pauseVideo()
-        messageUser(`what's your name?`, 'submit-username', 'user-value')
-        const submit = document.getElementById('submit-username')
-        submit.addEventListener('click', () => {
-          saveUser()
-          clearMessage()
-          phase = 2
-          player.playVideo()
-        })
+    function askForInput(message, saveLocation) {
+      showMessageBox()
+      player.pauseVideo()
+      const btnName = 'submit-company'
+      messageUser(message, btnName)
+      const submit = document.getElementById('submit-input')
+      submit.addEventListener('click', (event) => {
+        event.preventDefault()
+        saveInput(saveLocation)
+      })
+    }
+    
+    function saveInput(saveLocation) {
+      if (successfulSavedInput(saveLocation)) {
+        hideMessageBox()
+        clearMessage()
+        phase += 1
+        player.playVideo()
+      } else {
+        const error = document.getElementById('err')
+        error.innerText = "Please enter something, it's no fun otherwise"
+      }
     }
 
-    function saveUser(fromElement) {
-        username = document.getElementById('user-value').value
+    function showMessageBox () {
+        messageBox.style.opacity = .8 
+    }
+
+    function hideMessageBox () {
+      messageBox.style.opacity = 0
+    }
+
+    function successfulSavedInput(saveLocation) {
+      saveData[saveLocation] = document.getElementById('input-value').value
+      if (saveData[saveLocation] !== '') {
+        return true
+      } else {
+        return false
+      }
     }
     
     function speak(words) {
       const msg = new SpeechSynthesisUtterance()
       msg.text = words
       window.speechSynthesis.speak(msg)
+      showCaption(words)
+    }
+
+    function showCaption(text) {
+      if (closedCaptionsOn) {
+        const caption = document.querySelector('.captions')
+        console.log(caption)
+        caption.innerHTML = `
+          <span style="background-color: #000000; color: #FFFFFF">${text}</span>
+        `
+        setTimeout(() => {
+          captions.innerText = ''
+        }, 1000)
+      }
     }
     // no video? are you connected to the internet?
-
   </script>
 </html>
 
