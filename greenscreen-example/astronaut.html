@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Green Screen test</title>
+  <link rel="shortcut icon"
+    href="https://www.flaticon.com/svg/vstatic/svg/2983/2983706.svg?token=exp=1612922682~hmac=5ed7cfbb997291a74189f97cedbda1c0" />
+</head>
+<style>
+  .offscreen {
+    position: absolute;
+    top: -1000px;
+    left: -1000px;
+  }
+</style>
+<body>
+  <div>
+    <video id="video" src="https://ak.picdn.net/shutterstock/videos/1010061266/preview/stock-footage-funny-astronaut-play-to-drums-green-screen-realistic-k-animation.webm" controls crossorigin="anonymous"></video>
+  </div> 
+  <div>
+    <canvas id='c1' width="1980" height="1820" style="display:none;"></canvas>
+  </div>
+  <div>
+    <canvas id='c2' width="1980" height="1820"></canvas>
+  </div>
+    <script src="./greenscreen.js"></script>
+</body>
+</html>
